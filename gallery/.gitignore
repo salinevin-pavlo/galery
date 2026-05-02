@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Uploads (photos - too large)
+uploads/
+
+# Database (contains user data)
+database/
+
+# Backups
+gallery-backups/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env

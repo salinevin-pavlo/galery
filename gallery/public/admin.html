@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gallery Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 16px;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        
+        h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        input, button {
+            font-family: inherit;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        input::placeholder {
+            color: #666;
+        }
+        
+        input[type="file"] {
+            cursor: pointer;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #7c69c3;
+            color: #fff;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background: #6b59b0;
+            transform: none;
+            box-shadow: 0 4px 12px rgba(124, 105, 195, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .btn-danger {
+            background: rgba(255,60,60,0.2);
+            color: #ff6060;
+        }
+        
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-muted {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        /* Auth forms */
+        .auth-container {
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .auth-tabs button {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .auth-tabs button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Dashboard */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .galleries-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        @media (min-width: 600px) {
+            .galleries-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 900px) {
+            .galleries-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .container {
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 24px;
+            }
+        }
+        
+        .gallery-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .gallery-card:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .gallery-card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+        
+        .gallery-card .meta {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+        }
+        
+        .gallery-card .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        /* Gallery detail */
+        .gallery-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .link-box {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(102,126,234,0.15);
+            border: 1px solid rgba(102,126,234,0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+        }
+        
+        .link-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 0.9rem;
+            margin: 0;
+            padding: 0;
+            min-width: 0;
+        }
+        
+        .link-box button {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #667eea;
+            background: rgba(102,126,234,0.1);
+        }
+        
+        .drop-zone .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .drop-zone .text {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .category-select-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .category-select-row select {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .drop-zone .text span {
+            color: #667eea;
+        }
+        
+        /* Photos grid */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+        
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-item .delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255,50,50,0.9);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-item:hover .delete-btn {
+            opacity: 1;
+        }
+        
+        /* Categories list */
+        .categories-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .category-item .cat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .category-item .cat-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .category-item .cat-info {
+            flex: 1;
+        }
+        
+        .category-item .cat-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .category-item .cat-count {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .category-item .cat-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .category-item .cat-actions button {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Category Tabs (horizontal scroll) */
+        .category-tabs {
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+        
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .category-tab:last-child {
+            border-right: none;
+        }
+        
+        .category-tab:hover {
+            color: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .category-tab.active {
+            color: #e74c3c;
+            background: transparent;
+            border-bottom: 2px solid #e74c3c;
+        }
+        
+        .category-add-btn {
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            background: transparent;
+        }
+        
+        .cat-del-btn {
+            background: rgba(255,60,60,0.2);
+            color: #ff6060;
+        }
+        
+        .cat-up-btn, .cat-down-btn {
+            background: rgba(255,255,255,0.1);
+            color: #888;
+        }
+        
+        /* Progress */
+        .upload-progress {
+            margin-top: 12px;
+            display: none;
+        }
+        
+        .upload-progress.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            width: 0%;
+        }
+        
+        .progress-text {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 12px 24px;
+            background: #333;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .toast.error {
+            background: #ff5050;
+        }
+        
+        /* Create gallery modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal {
+            background: #1a1a24;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+        }
+        
+        .modal .close-btn {
+            float: right;
+            background: none;
+            color: #888;
+            padding: 4px 8px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .color-picker-row {
+            margin-bottom: 12px;
+        }
+        
+        .color-picker-row input[type="color"] {
+            width: 100%;
+            height: 44px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+        
+        /* Design panel styles */
+        .cover-upload {
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+        
+        .cover-preview {
+            width: 100%;
+            height: 160px;
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            transition: border-color 0.2s;
+        }
+        
+        .cover-preview:hover {
+            border-color: #667eea;
+        }
+        
+        .cover-preview.has-image {
+            border-style: solid;
+        }
+        
+        .cover-placeholder {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .design-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .design-section h3 {
+            font-size: 0.95rem;
+            color: #888;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        /* Cover upload area */
+        .cover-upload-area {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        
+        .cover-upload-area:hover {
+            border-color: #7c69c3;
+            background: rgba(124, 105, 195, 0.1);
+        }
+        
+        .cover-upload-area.has-cover {
+            border-style: solid;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .cover-upload-area .cover-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+        
+        .cover-upload-area .cover-text {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .cover-upload-area .cover-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cover-upload-area .cover-replace {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        
+        .cover-upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+        
+        .toggle-row span {
+            font-size: 0.9rem;
+        }
+        
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        
+        input:checked + .slider {
+            background: #667eea;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        .color-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+        
+        .color-row span {
+            font-size: 0.9rem;
+        }
+        
+        .color-row input[type="color"] {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 0;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 8px 0;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 150px;
+        }
+        
+        .pos-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: #888;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pos-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .pos-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-container">
+        <h1 class="text-center">🖼️ Gallery Admin</h1>
+        
+        <div class="auth-tabs">
+            <button id="loginTab" class="active" onclick="showAuthTab('login')">Вхід</button>
+            <button id="registerTab" onclick="showAuthTab('register')">Реєстрація</button>
+        </div>
+        
+        <!-- Login Form -->
+        <div id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Пароль">
+            <button id="loginBtn" class="btn-primary" onclick="handleLogin()">Увійти</button>
+        </div>
+        
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+            <input type="email" id="registerEmail" placeholder="Email">
+            <input type="password" id="registerPassword" placeholder="Пароль">
+            <button class="btn-primary" onclick="handleRegister()">Зареєструватися</button>
+        </div>
+    </div>
+    
+    <!-- Dashboard -->
+    <div id="dashboardScreen" class="container hidden">
+        <div class="dashboard-header">
+            <h1>Мої галереї</h1>
+            <button class="btn-primary btn-small" onclick="openCreateModal()">+ Нова галерея</button>
+        </div>
+        
+        <div class="user-info">
+            <span id="userEmail" class="text-muted"></span>
+            <button class="btn-secondary btn-small" onclick="handleLogout()">Вийти</button>
+        </div>
+        
+        <div id="galleriesList" class="galleries-grid"></div>
+    </div>
+    
+    <!-- Gallery Detail -->
+    <div id="galleryScreen" class="container hidden">
+        <div class="gallery-header">
+            <a href="#" class="back-btn" onclick="showDashboard()">← Назад</a>
+            <h1 id="galleryTitle">Галерея</h1>
+        </div>
+        
+        <div class="link-box">
+            <input type="text" id="galleryLink" readonly>
+            <button onclick="copyLink()">Копіювати</button>
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="value" id="photoCount">0</div>
+                <div class="label">Фото</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="expiresValue">—</div>
+                <div class="label">Зберігається до</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="statusValue">Активна</div>
+                <div class="label">Статус</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📤 Завантажити фото</h2>
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="icon">📁</div>
+                <div class="text">Перетягни фото або <span>вибери</span></div>
+            </div>
+            <input type="file" id="fileInput" multiple accept="image/*" hidden onchange="handleFiles(this.files)">
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+                <div class="progress-text" id="progressText">Завантаження...</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📋 Стрічка</h2>
+            <div class="category-tabs">
+                <div class="category-tab active" data-id="" onclick="selectCategoryTab(this, '')">Всі</div>
+                <div id="categoryTabsContainer"></div>
+            </div>
+            <button class="btn-secondary" style="margin-top:12px;width:100%;" onclick="showAddCategory()">+ Нова категорія</button>
+            <div id="addCategoryForm" class="hidden" style="margin-top:12px;">
+                <input type="text" id="newCategoryName" placeholder="Назва категорії" style="margin-bottom:8px;">
+                <button class="btn-primary" onclick="createCategory()">Додати</button>
+                <button class="btn-secondary" style="margin-left:8px;" onclick="hideAddCategory()">Скасувати</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🎨 Оформлення</h2>
+            
+            <label class="form-label">Фото на фон</label>
+            <div class="cover-upload-area" id="coverUploadZone">
+                <span class="cover-icon">🏞️</span>
+                <span class="cover-text">Натисни щоб вибрати фото</span>
+                <input type="file" id="coverInput" accept="image/*" onchange="handleCoverUpload(this.files)">
+            </div>
+            
+            <div class="design-section">
+                <h3>Текст</h3>
+                <div class="toggle-row">
+                    <span>Відображення заголовку</span>
+                    <label class="switch">
+                        <input type="checkbox" id="editShowTitle" onchange="updateDesignSetting('showTitle', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Відображення дати</span>
+                    <label class="switch">
+                        <input type="checkbox" id="editShowDate" onchange="updateDesignSetting('showDate', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="design-section">
+                <h3>Шрифти</h3>
+                <label class="form-label" style="font-size:0.85rem;">Шрифт заголовку</label>
+                <select id="editFontTitle" onchange="updateDesignSetting('fontTitle', this.value)">
+                    <option value="Inter">Inter (стандартний)</option>
+                    <option value="Great Vibes">Great Vibes (курсив)</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Dancing Script">Dancing Script</option>
+                </select>
+                <label class="form-label" style="font-size:0.85rem;margin-top:8px;">Шрифт дати</label>
+                <select id="editFontDate" onchange="updateDesignSetting('fontDate', this.value)">
+                    <option value="Inter">Inter (стандартний)</option>
+                    <option value="Great Vibes">Great Vibes (курсив)</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Dancing Script">Dancing Script</option>
+                </select>
+            </div>
+            
+            <div class="design-section">
+                <h3>Кольори</h3>
+                <div class="color-row">
+                    <span>Колір заголовку</span>
+                    <input type="color" id="editTitleColor" value="#ffffff" onchange="updateDesignSetting('titleColor', this.value)">
+                </div>
+                <div class="color-row">
+                    <span>Колір дати</span>
+                    <input type="color" id="editDateColor" value="#ffffff" onchange="updateDesignSetting('dateColor', this.value)">
+                </div>
+            </div>
+            
+            <div class="design-section">
+                <h3>Розміри та прозорість</h3>
+                <label class="form-label" style="font-size:0.85rem;">Розмір заголовку: <span id="titleSizeValue">48</span>px</label>
+                <input type="range" id="editTitleSize" min="24" max="120" value="48" onchange="updateDesignSetting('titleSize', this.value)" oninput="document.getElementById('titleSizeValue').textContent=this.value">
+                <label class="form-label" style="font-size:0.85rem;margin-top:12px;">Прозорість заголовку: <span id="titleOpacityValue">100</span>%</label>
+                <input type="range" id="editTitleOpacity" min="10" max="100" value="100" onchange="updateDesignSetting('titleOpacity', this.value)" oninput="document.getElementById('titleOpacityValue').textContent=this.value">
+                
+                <label class="form-label" style="font-size:0.85rem;margin-top:12px;">Розмір дати: <span id="dateSizeValue">16</span>px</label>
+                <input type="range" id="editDateSize" min="12" max="48" value="16" onchange="updateDesignSetting('dateSize', this.value)" oninput="document.getElementById('dateSizeValue').textContent=this.value">
+                <label class="form-label" style="font-size:0.85rem;margin-top:12px;">Прозорість дати: <span id="dateOpacityValue">100</span>%</label>
+                <input type="range" id="editDateOpacity" min="10" max="100" value="100" onchange="updateDesignSetting('dateOpacity', this.value)" oninput="document.getElementById('dateOpacityValue').textContent=this.value">
+            </div>
+            
+            <div class="design-section">
+                <h3>Фото</h3>
+                <label class="form-label" style="font-size:0.85rem;">Заокруглення фото: <span id="borderRadiusValue">0</span>px</label>
+                <input type="range" id="editBorderRadius" min="0" max="20" value="0" onchange="updateDesignSetting('borderRadius', this.value)" oninput="document.getElementById('borderRadiusValue').textContent=this.value">
+            </div>
+            
+            <div class="design-section">
+                <h3>Позиція тексту</h3>
+                <div class="position-grid">
+                    <button class="pos-btn" data-pos="top-left" onclick="setCoverPosition('top-left')">↖</button>
+                    <button class="pos-btn" data-pos="top" onclick="setCoverPosition('top')">↑</button>
+                    <button class="pos-btn" data-pos="top-right" onclick="setCoverPosition('top-right')">↗</button>
+                    <button class="pos-btn" data-pos="left" onclick="setCoverPosition('left')">←</button>
+                    <button class="pos-btn active" data-pos="center" onclick="setCoverPosition('center')">⬤</button>
+                    <button class="pos-btn" data-pos="right" onclick="setCoverPosition('right')">→</button>
+                    <button class="pos-btn" data-pos="bottom-left" onclick="setCoverPosition('bottom-left')">↙</button>
+                    <button class="pos-btn" data-pos="bottom" onclick="setCoverPosition('bottom')">↓</button>
+                    <button class="pos-btn" data-pos="bottom-right" onclick="setCoverPosition('bottom-right')">↘</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 id="photosHeader">🗂️ Фото <span id="currentCategoryLabel" style="font-weight:normal;color:#888;font-size:0.85rem;"></span></h2>
+            <div class="photos-grid" id="photosGrid"></div>
+        </div>
+    </div>
+    
+    <!-- Create Gallery Modal -->
+    <div id="createModal" class="modal-overlay hidden">
+        <div class="modal">
+            <button class="close-btn" onclick="closeCreateModal()">✕</button>
+            <h2>Створити галерею</h2>
+            <label class="form-label">Назва галереї</label>
+            <input type="text" id="newTitle" placeholder="Наприклад: Оля 1 рік">
+            <label class="form-label">Зберігається до (необов'язково)</label>
+            <input type="date" id="newExpires">
+            <button class="btn-primary" onclick="createGallery()">Створити</button>
+        </div>
+    </div>
+    
+    <script>
+        const API = '';
+        let currentAdmin = null;
+        let currentGallery = null;
+        let selectedUploadCategory = null;
+        let adminPassword = null;
+        
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast ${type} show`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+        
+
+        function showManageCategories() {
+            // Scroll to categories section
+            document.getElementById('categoriesList').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function updateCategorySelectOptions(categories) {
+            const select = document.getElementById('uploadCategorySelect');
+            select.innerHTML = '<option value="">Без категорії</option>';
+            categories.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)} (${c.photo_count || 0})</option>`;
+            });
+            // Restore previous selection
+            if (selectedUploadCategory) {
+                select.value = selectedUploadCategory;
+            }
+        }
+        
+        function showAddCategory() {
+            document.getElementById('addCategoryForm').classList.remove('hidden');
+            document.getElementById('newCategoryName').focus();
+        }
+        
+        function hideAddCategory() {
+            document.getElementById('addCategoryForm').classList.add('hidden');
+            document.getElementById('newCategoryName').value = '';
+        }
+        
+        async function createCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            if (!name) return showToast('Введи назву', 'error');
+            
+            try {
+                const res = await fetch(`${API}/api/gallery/${currentGallery.id}/categories`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-session-token': currentAdmin.id
+                    },
+                    body: JSON.stringify({ name, position: 0 })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                hideAddCategory();
+                loadGalleryDetail(currentGallery.id);
+                showToast('Категорію створено!');
+                
+                // Auto-select this category for upload and show its photos
+                setTimeout(() => {
+                    const tab = document.querySelector(`.category-tab[data-id="${data.id}"]`);
+                    if (tab) selectCategoryTab(tab, data.id, data.name);
+                }, 300);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+        
+        async function deleteCategory(id) {
+            if (!confirm('Видалити категорію?')) return;
+            
+            try {
+                const res = await fetch(`${API}/api/categories/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-session-token': currentAdmin.id }
+                });
+                
+                if (!res.ok) throw new Error('Помилка');
+                loadGalleryDetail(currentGallery.id);
+                showToast('Категорію видалено');
+            } catch (err) {
+                showToast('Помилка', 'error');
+            }
+        }
+        
+        function renderCategoryTabs(categories) {
+            const container = document.getElementById('categoryTabsContainer');
+            if (!categories || categories.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = categories.map(c => `
+                <div class="category-tab" data-id="${c.id}" onclick="selectCategoryTab(this, '${c.id}', '${escapeHtml(c.name).replace(/'/g, "\\'")}')">
+                    ${escapeHtml(c.name)} (${c.photo_count || 0})
+                </div>
+            `).join('');
+        }
+        
+        function selectCategoryTab(el, categoryId, categoryName) {
+            // Update active tab
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+            if (el) el.classList.add('active');
+            
+            // Set upload category
+            selectedUploadCategory = categoryId || null;
+            
+            // Filter photos display
+            filterAdminPhotos(categoryId || null);
+            
+            // Update header with category name
+            const label = document.getElementById('currentCategoryLabel');
+            if (categoryId) {
+                label.textContent = `— ${categoryName}`;
+            } else {
+                label.textContent = '';
+            }
+        }
+        
+        function filterAdminPhotos(categoryId) {
+            const allPhotos = window.allAdminPhotos || [];
+            
+            // Show debug in the header
+            const header = document.getElementById('photosHeader');
+            if (header) {
+                header.innerHTML = '🗂️ Фото — Filter: ' + (categoryId || 'all') + ' (total: ' + allPhotos.length + ', filtered: ' + (categoryId ? allPhotos.filter(p => p.category_id === categoryId).length : allPhotos.length) + ')';
+            }
+            
+            const filtered = categoryId 
+                ? allPhotos.filter(p => p.category_id === categoryId)
+                : allPhotos;
+            
+            const grid = document.getElementById('photosGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:#888;padding:40px;">В цій категорії немає фото</p>';
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="photo-item">
+                    <img src="/uploads/${p.filename}" alt="${escapeHtml(p.original_name)}">
+                    <button class="delete-btn" onclick="deletePhoto('${p.id}')">✕</button>
+                </div>
+            `).join('');
+        }
+        
+        async function moveCategory(id, direction) {
+            // For simplicity, just reload - later can implement proper ordering
+            loadGalleryDetail(currentGallery.id);
+        }
+        
+        function showAuthTab(tab) {
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+            document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+        }
+        
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                document.getElementById('debugTab').textContent = 'Empty fields: email=' + email + ' pass=' + password;
+                return showToast('Заповни всі поля', 'error');
+            }
+            
+            try {
+                const res = await fetch(`${API}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                currentAdmin = data;
+                localStorage.setItem('galleryAdmin', JSON.stringify(data));
+                showDashboard();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+        
+        async function handleRegister() {
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!email || !password) return showToast('Заповни всі поля', 'error');
+            if (password.length < 4) return showToast('Пароль мінімум 4 символи', 'error');
+            
+            try {
+                const res = await fetch(`${API}/api/admin/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                showToast('Акаунт створено!');
+                showAuthTab('login');
+                document.getElementById('loginEmail').value = email;
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+        
+        function handleLogout() {
+            currentAdmin = null;
+            localStorage.removeItem('galleryAdmin');
+            showAuth();
+        }
+        
+        async function showDashboard() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('galleryScreen').classList.add('hidden');
+            document.getElementById('userEmail').textContent = currentAdmin.email;
+            await loadGalleries();
+        }
+        
+        async function loadGalleries() {
+            try {
+                const res = await fetch(`${API}/api/admin/${currentAdmin.id}/galleries`, {
+                    headers: { 'x-session-token': currentAdmin.id }
+                });
+                const galleries = await res.json();
+                
+                const list = document.getElementById('galleriesList');
+                
+                if (galleries.length === 0) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📷</div>
+                            <p>Немає галерей</p>
+                            <p class="text-muted">Створи першу галерею!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                list.innerHTML = galleries.map(g => `
+                    <div class="gallery-card" onclick="openGallery('${g.id}')">
+                        <h3>${escapeHtml(g.title)}</h3>
+                        <div class="meta">
+                            ${g.photo_count} фото • ${formatDate(g.created_at)}
+                        </div>
+                        <div class="actions" onclick="event.stopPropagation()">
+                            <button class="btn-secondary btn-small" onclick="copyGalleryLink('${g.id}')">Копіювати</button>
+                            <button class="btn-danger btn-small" onclick="deleteGallery('${g.id}')">Видалити</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                showToast('Помилка завантаження', 'error');
+            }
+        }
+        
+        function openGallery(id) {
+            currentGallery = { id };
+            adminPassword = currentAdmin.id; // Use session token
+            
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('galleryScreen').classList.remove('hidden');
+            
+            loadGalleryDetail(id);
+        }
+        
+        async function loadGalleryDetail(id) {
+            try {
+                const res = await fetch(`${API}/api/gallery/${id}`);
+                const data = await res.json();
+                
+                document.getElementById('galleryTitle').textContent = data.title;
+                document.getElementById('galleryLink').value = `${location.origin}/g/${id}`;
+                document.getElementById('photoCount').textContent = data.photos?.length || 0;
+                document.getElementById('expiresValue').textContent = data.expires_at || 'Без обмежень';
+                currentGallery = data;
+                
+                // Load cover photo
+                const coverZone = document.getElementById('coverUploadZone');
+                if (data.cover_photo) {
+                    coverZone.style.backgroundImage = `url(${data.cover_photo})`;
+                    coverZone.classList.add('has-cover');
+                    coverZone.querySelector('.cover-icon').style.display = 'none';
+                    coverZone.querySelector('.cover-text').style.display = 'none';
+                }
+                
+                // Load design settings
+                document.getElementById('editShowTitle').checked = data.show_title !== 0;
+                document.getElementById('editShowDate').checked = data.show_date !== 0;
+                document.getElementById('editFontTitle').value = data.font_title || 'Inter';
+                document.getElementById('editFontDate').value = data.font_date || 'Inter';
+                document.getElementById('editTitleColor').value = data.title_color || '#ffffff';
+                document.getElementById('editDateColor').value = data.date_color || '#ffffff';
+                document.getElementById('editTitleSize').value = data.title_size || 48;
+                document.getElementById('editTitleSize').dispatchEvent(new Event('input'));
+                document.getElementById('editDateSize').value = data.date_size || 16;
+                document.getElementById('editDateSize').dispatchEvent(new Event('input'));
+                document.getElementById('editTitleOpacity').value = data.title_opacity || 100;
+                document.getElementById('editTitleOpacity').dispatchEvent(new Event('input'));
+                document.getElementById('editDateOpacity').value = data.date_opacity || 100;
+                document.getElementById('editDateOpacity').dispatchEvent(new Event('input'));
+                document.getElementById('editBorderRadius').value = data.border_radius || 0;
+                document.getElementById('editBorderRadius').dispatchEvent(new Event('input'));
+                
+                // Update position buttons
+                document.querySelectorAll('.pos-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.pos === (data.cover_position || 'center')) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Load photos
+                const grid = document.getElementById('photosGrid');
+                window.allAdminPhotos = data.photos || [];
+                grid.innerHTML = (data.photos || []).map(p => `
+                    <div class="photo-item">
+                        <img src="/uploads/${p.filename}" alt="${escapeHtml(p.original_name)}">
+                        <button class="delete-btn" onclick="deletePhoto('${p.id}')">✕</button>
+                    </div>
+                `).join('');
+                
+                // Reset photos header to default
+                const photosHeader = document.getElementById('photosHeader');
+                const label = document.getElementById('currentCategoryLabel');
+                if (photosHeader) {
+                    photosHeader.innerHTML = '🗂️ Фото';
+                }
+                if (label) {
+                    label.textContent = '';
+                }
+                
+                // Load categories
+                renderCategoryTabs(data.categories || []);
+            } catch (err) {
+                showToast('Помилка завантаження', 'error');
+            }
+        }
+        
+        function copyLink() {
+            const input = document.getElementById('galleryLink');
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(input.value);
+            } else {
+                input.select();
+                document.execCommand('copy');
+            }
+            showToast('Посилання скопійовано!');
+        }
+        
+        function copyGalleryLink(id) {
+            const link = `${location.origin}/g/${id}`;
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(link);
+            } else {
+                const input = document.createElement('input');
+                input.value = link;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+            }
+            showToast('Посилання скопійовано!');
+        }
+        
+        async function updateDesignSetting(setting, value) {
+            try {
+                const res = await fetch(`${API}/api/galleries/${currentGallery.id}`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-session-token': currentAdmin.id
+                    },
+                    body: JSON.stringify({ [setting]: value })
+                });
+                
+                if (!res.ok) throw new Error('Update failed');
+                showToast('Збережено!');
+            } catch (err) {
+                showToast('Помилка збереження', 'error');
+            }
+        }
+        
+        function setCoverPosition(position) {
+            document.querySelectorAll('.pos-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.pos-btn[data-pos="${position}"]`).classList.add('active');
+            updateDesignSetting('coverPosition', position);
+        }
+        
+        async function handleCoverUpload(files) {
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            
+            const formData = new FormData();
+            formData.append('cover', file);
+            
+            try {
+                const res = await fetch(`${API}/api/gallery/${currentGallery.id}/cover`, {
+                    method: 'POST',
+                    headers: { 'x-session-token': currentAdmin.id },
+                    body: formData
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                document.getElementById('coverPreview').style.backgroundImage = `url(${data.cover_photo})`;
+                document.getElementById('coverPreview').classList.add('has-image');
+                document.getElementById('coverPreview').innerHTML = '';
+                currentGallery.cover_photo = data.cover_photo;
+                showToast('Обкладинка завантажена!');
+            } catch (err) {
+                showToast('Помилка завантаження', 'error');
+            }
+        }
+        
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newExpires').value = '';
+        }
+        
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+        }
+        
+        async function createGallery() {
+            const title = document.getElementById('newTitle').value.trim();
+            const expiresAt = document.getElementById('newExpires').value;
+            
+            if (!title) return showToast('Введи назву галереї', 'error');
+            
+            try {
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('adminId', currentAdmin.id);
+                if (expiresAt) formData.append('expiresAt', expiresAt);
+                formData.append('expiresColor', '#888888');
+                
+                const res = await fetch(`${API}/api/galleries`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                closeCreateModal();
+                showToast('Галерея створена!');
+                await loadGalleries();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+        
+        async function deleteGallery(id) {
+            if (!confirm('Видалити галерею? Всі фото буде втрачено!')) return;
+            
+            try {
+                const res = await fetch(`${API}/api/galleries/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-session-token': currentAdmin.id }
+                });
+                
+                if (!res.ok) throw new Error('Cannot delete');
+                
+                showToast('Галерея видалена');
+                await loadGalleries();
+            } catch (err) {
+                showToast('Помилка видалення', 'error');
+            }
+        }
+        
+        async function deletePhoto(photoId) {
+            if (!confirm('Видалити фото?')) return;
+            
+            try {
+                const res = await fetch(`${API}/api/gallery/${currentGallery.id}/photos/${photoId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-session-token': currentAdmin.id }
+                });
+                
+                if (!res.ok) throw new Error('Cannot delete');
+                
+                showToast('Фото видалено');
+                loadGalleryDetail(currentGallery.id);
+            } catch (err) {
+                showToast('Помилка видалення', 'error');
+            }
+        }
+        
+        // Drag and drop
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+        
+        async function handleFiles(files) {
+            if (!files.length || !currentAdmin) {
+                if (!currentAdmin) showToast('Спочатку увійди в систему', 'error');
+                return;
+            }
+            
+            const progressEl = document.getElementById('uploadProgress');
+            progressEl.classList.add('active');
+            
+            let uploaded = 0;
+            const total = files.length;
+            
+            for (const file of files) {
+                try {
+                    const formData = new FormData();
+                    formData.append('photo', file);
+                    formData.append('adminPassword', adminPassword);
+                    if (selectedUploadCategory) {
+                        formData.append('categoryId', selectedUploadCategory);
+                    }
+                    
+                    const res = await fetch(`${API}/api/gallery/${currentGallery.id}/photos`, {
+                        method: 'POST',
+                        headers: { 'x-session-token': currentAdmin.id },
+                        body: formData
+                    });
+                    
+                    if (res.ok) uploaded++;
+                    
+                    const percent = Math.round((uploaded / total) * 100);
+                    document.getElementById('progressFill').style.width = `${percent}%`;
+                    document.getElementById('progressText').textContent = `${uploaded} з ${total}`;
+                } catch (err) {}
+            }
+            
+            setTimeout(() => {
+                progressEl.classList.remove('active');
+                document.getElementById('progressFill').style.width = '0%';
+                loadGalleryDetail(currentGallery.id);
+                showToast(`Завантажено ${uploaded} фото`);
+            }, 500);
+        }
+        
+        function showAuth() {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('galleryScreen').classList.add('hidden');
+        }
+        
+        function formatDate(str) {
+            if (!str) return '';
+            return new Date(str).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' });
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+        
+        // Init
+        async function init() {
+
+            const saved = localStorage.getItem('galleryAdmin');
+            if (saved) {
+
+                currentAdmin = JSON.parse(saved);
+                showDashboard();
+            } else {
+
+                showAuth();
+            }
+        }
+        
+        // Test function - call this from browser console
+        window.testAuth = function() {
+            document.getElementById('debugTab').textContent = 'testAuth called';
+            showAuthTab('login');
+        };
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} — Галерея</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        .cover {
+            position: relative;
+            height: 500px;
+            background-size: cover;
+            background-position: {{COVER_POSITION}};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+        }
+        
+        .cover-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .cover-title {
+            display: {{SHOW_TITLE}};
+            font-family: '{{FONT_TITLE}}', cursive;
+            font-size: {{TITLE_SIZE}}px;
+            color: {{TITLE_COLOR}};
+            opacity: {{TITLE_OPACITY}};
+            text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        
+        .cover-date {
+            display: {{SHOW_DATE}};
+            font-family: '{{FONT_DATE}}', sans-serif;
+            font-size: {{DATE_SIZE}}px;
+            color: {{DATE_COLOR}};
+            opacity: {{DATE_OPACITY}};
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .gallery {
+            columns: 3;
+            column-gap: 4px;
+            padding: 4px;
+            width: 100%;
+        }
+        
+        .gallery-item {
+            break-inside: avoid;
+            margin-bottom: 4px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            display: block;
+            transition: transform 0.3s ease;
+            border-radius: {{BORDER_RADIUS}}px;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.03);
+        }
+        
+        /* Categories Ribbon */
+        .categories-ribbon {
+            display: flex;
+            gap: 8px;
+            padding: 12px 8px;
+            overflow-x: auto;
+            background: rgba(0,0,0,0.3);
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        
+        .categories-ribbon::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-chip {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .category-chip:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .category-chip.active {
+            background: #7c69c3;
+            color: #fff;
+        }
+        
+        .category-chip.all {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 8px;
+        }
+        
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            padding: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .lightbox-nav:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .lightbox-nav.prev {
+            left: 20px;
+        }
+        
+        .lightbox-nav.next {
+            right: 20px;
+        }
+        
+        .lightbox-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .lightbox-actions button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-download {
+            background: #fff;
+            color: #000;
+        }
+        
+        .btn-close {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .download-all {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .download-all button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .download-all button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .footer a {
+            color: #888;
+            text-decoration: none;
+        }
+        
+        @media (min-width: 768px) {
+            .gallery {
+                columns: 4;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .gallery {
+                columns: 5;
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .gallery {
+                columns: 6;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .cover {
+                height: 350px;
+            }
+            .gallery {
+                columns: 2;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .gallery {
+                columns: 2;
+                padding: 2px;
+                column-gap: 2px;
+            }
+            .cover {
+                height: 280px;
+            }
+            .cover-title {
+                font-size: 28px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cover" id="cover">
+        <div class="cover-content">
+            <h1 class="cover-title" id="title">{{TITLE}}</h1>
+            <p class="cover-date" id="date"></p>
+        </div>
+    </div>
+    
+    <div class="categories-ribbon" id="categoriesRibbon"></div>
+    
+    <div class="gallery" id="gallery"></div>
+    
+    <div class="download-all">
+        <button onclick="downloadAll()">⬇️ Скачати всі фото</button>
+    </div>
+    
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-nav prev" onclick="prevPhoto()">❮</button>
+        <img id="lightbox-img" src="" alt="">
+        <button class="lightbox-nav next" onclick="nextPhoto()">❯</button>
+        <div class="lightbox-actions">
+            <button class="btn-download" onclick="downloadCurrent()">⬇️ Скачати</button>
+            <button class="btn-close" onclick="closeLightbox()">✖ Закрити</button>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>Створено за допомогою <a href="#">Gallery Service</a></p>
+    </footer>
+    
+    <script>
+        const GALLERY_ID = '{{GALLERY_ID}}';
+        const photos = [];
+        let categories = [];
+        let currentCategory = null;
+        let currentIndex = 0;
+        
+        async function loadGallery() {
+            try {
+                const res = await fetch(`/api/gallery/${GALLERY_ID}`);
+                const data = await res.json();
+                
+                if (data.error && data.expired) {
+                    document.body.innerHTML = '<h1 style="text-align:center;margin-top:40vh;color:#fff;">Галерея більше недоступна</h1>';
+                    return;
+                }
+                
+                // Set cover background
+                if (data.cover_photo) {
+                    document.getElementById('cover').style.backgroundImage = `url(${data.cover_photo})`;
+                } else {
+                    document.getElementById('cover').style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+                }
+                
+                // Store categories
+                categories = data.categories || [];
+                
+                // Load photos
+                if (data.photos) {
+                    data.photos.forEach(photo => photos.push(photo));
+                }
+                
+                // Check URL hash for category
+                const hash = window.location.hash.slice(1);
+                if (hash && categories.length > 0) {
+                    const cat = categories.find(c => c.id === hash || c.name.toLowerCase().replace(/\s+/g, '-') === hash);
+                    if (cat) {
+                        currentCategory = cat.id;
+                    }
+                }
+                
+                // Render categories ribbon (after hash is processed)
+                renderCategoriesRibbon();
+                
+                renderGallery();
+                
+                // Listen for hash changes (back/forward navigation)
+                window.addEventListener('hashchange', () => {
+                    const newHash = window.location.hash.slice(1);
+                    if (!newHash) {
+                        filterCategory(null);
+                    } else {
+                        const cat = categories.find(c => c.id === newHash || c.name.toLowerCase().replace(/\s+/g, '-') === newHash);
+                        if (cat) {
+                            filterCategory(cat.id, cat.name);
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to load gallery:', err);
+                document.getElementById('gallery').innerHTML = 
+                    '<p style="text-align:center;color:#888;padding:40px;">Помилка завантаження галереї</p>';
+            }
+        }
+        
+        function renderCategoriesRibbon() {
+            const ribbon = document.getElementById('categoriesRibbon');
+            
+            if (categories.length === 0) {
+                ribbon.style.display = 'none';
+                return;
+            }
+            
+            ribbon.style.display = 'flex';
+            
+            let html = `<div class="category-chip all ${currentCategory === null ? 'active' : ''}" onclick="filterCategory(null)">Всі</div>`;
+            
+            categories.forEach(cat => {
+                html += `<div class="category-chip ${currentCategory === cat.id ? 'active' : ''}" onclick="filterCategory('${cat.id}', '${cat.name}')">${escapeHtml(cat.name)}</div>`;
+            });
+            
+            ribbon.innerHTML = html;
+        }
+        
+        function filterCategory(categoryId, categoryName) {
+            currentCategory = categoryId;
+            
+            // Update URL hash without reload
+            if (categoryId && categoryName) {
+                const hash = categoryName.toLowerCase().replace(/\s+/g, '-');
+                history.replaceState(null, '', `#${hash}`);
+            } else {
+                history.replaceState(null, '', window.location.pathname);
+            }
+            
+            // Update active state in ribbon
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            
+            if (categoryId === null) {
+                document.querySelector('.category-chip.all').classList.add('active');
+            } else {
+                const chips = document.querySelectorAll('.category-chip');
+                chips.forEach(chip => {
+                    if (chip.getAttribute('onclick').includes(categoryId)) {
+                        chip.classList.add('active');
+                    }
+                });
+            }
+            
+            renderGallery();
+        }
+        
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            
+            let filteredPhotos = photos;
+            if (currentCategory !== null) {
+                filteredPhotos = photos.filter(p => p.category_id === currentCategory);
+            }
+            
+            if (filteredPhotos.length === 0) {
+                gallery.innerHTML = '<p style="text-align:center;color:#888;padding:40px;">В цій категорії немає фото</p>';
+                return;
+            }
+            
+            gallery.innerHTML = filteredPhotos.map((photo, i) => `
+                <div class="gallery-item" onclick="openLightbox(${i})">
+                    <img src="${photo.url}" alt="${photo.name || ''}" loading="lazy">
+                </div>
+            `).join('');
+            
+            // Update global index to work with filtered photos
+            window.filteredPhotos = filteredPhotos;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function openLightbox(index) {
+            currentIndex = index;
+            const photo = window.filteredPhotos ? window.filteredPhotos[index] : photos[index];
+            document.getElementById('lightbox-img').src = photo.url;
+            document.getElementById('lightbox').classList.add('active');
+        }
+        
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.getElementById('lightbox-img').src = '';
+        }
+        
+        function prevPhoto() {
+            const arr = window.filteredPhotos || photos;
+            if (currentIndex > 0) {
+                currentIndex--;
+                document.getElementById('lightbox-img').src = arr[currentIndex].url;
+            }
+        }
+        
+        function nextPhoto() {
+            const arr = window.filteredPhotos || photos;
+            if (currentIndex < arr.length - 1) {
+                currentIndex++;
+                document.getElementById('lightbox-img').src = arr[currentIndex].url;
+            }
+        }
+        
+        function downloadCurrent() {
+            const arr = window.filteredPhotos || photos;
+            const photo = arr[currentIndex];
+            const link = document.createElement('a');
+            link.href = photo.url;
+            link.download = photo.name || 'photo';
+            link.click();
+        }
+        
+        function downloadAll() {
+            const btn = document.querySelector('.download-all button');
+            btn.textContent = '⏳ Завантажуємо...';
+            btn.disabled = true;
+            
+            window.location.href = '/api/gallery/' + GALLERY_ID + '/download';
+            
+            setTimeout(() => {
+                btn.innerHTML = '⬇️ Скачати всі фото';
+                btn.disabled = false;
+            }, 3000);
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('lightbox').classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                prevPhoto();
+            } else if (e.key === 'ArrowRight') {
+                nextPhoto();
+            }
+        });
+        
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+        });
+        
+        loadGallery();
+    </script>
+</body>
+</html>

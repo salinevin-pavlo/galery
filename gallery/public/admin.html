@@ -166,6 +166,15 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .storage-info {
+            font-size: 0.85rem;
+            color: #888;
+            background: rgba(255,255,255,0.05);
+            padding: 4px 10px;
+            border-radius: 6px;
         }
         
         .galleries-grid {
@@ -964,6 +973,7 @@
         
         <div class="user-info">
             <span id="userEmail" class="text-muted"></span>
+            <span id="storageInfo" class="text-muted storage-info"></span>
             <button class="btn-secondary btn-small" onclick="handleLogout()">Вийти</button>
         </div>
         
@@ -1366,6 +1376,19 @@
             document.getElementById('galleryScreen').classList.add('hidden');
             document.getElementById('userEmail').textContent = currentAdmin.email;
             await loadGalleries();
+            await loadStorageStats();
+        }
+        
+        async function loadStorageStats() {
+            try {
+                const res = await fetch(`${API}/api/admin/${currentAdmin.id}/stats`, {
+                    headers: { 'x-session-token': currentAdmin.id }
+                });
+                const stats = await res.json();
+                document.getElementById('storageInfo').textContent = `💾 ${stats.total_formatted}`;
+            } catch (err) {
+                console.log('Storage stats error', err);
+            }
         }
         
         async function loadGalleries() {

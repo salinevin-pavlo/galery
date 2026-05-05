@@ -295,6 +295,54 @@ app.get('/api/admin/:adminId/galleries', (req, res) => {
     res.json(result);
 });
 
+// Get admin storage stats
+app.get('/api/admin/:adminId/stats', (req, res) => {
+    const adminId = req.params.adminId;
+    const authHeader = req.headers['x-session-token'];
+    
+    const admin = dbGet('SELECT id FROM admins WHERE id = ?', [adminId]);
+    if (!admin || authHeader !== adminId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    // Get all gallery IDs for this admin
+    const galleries = dbAll('SELECT id FROM galleries WHERE admin_id = ?', [adminId]);
+    const galleryIds = galleries.map(g => g.id);
+    
+    // Get all photo filenames for these galleries
+    let totalSize = 0;
+    const gallerySizes = {};
+    
+    for (const gId of galleryIds) {
+        const photos = dbAll('SELECT filename FROM photos WHERE gallery_id = ?', [gId]);
+        let gallerySize = 0;
+        for (const p of photos) {
+            const filePath = path.join(UPLOADS_DIR, p.filename);
+            try {
+                const stats = fs.statSync(filePath);
+                gallerySize += stats.size;
+            } catch (e) {}
+        }
+        gallerySizes[gId] = gallerySize;
+        totalSize += gallerySize;
+    }
+    
+    res.json({
+        total_bytes: totalSize,
+        total_formatted: formatBytes(totalSize),
+        gallery_sizes: gallerySizes
+    });
+});
+
+// Format bytes to human readable
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 // === GALLERY ROUTES ===
 
 // Create gallery

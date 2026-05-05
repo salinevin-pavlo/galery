@@ -485,6 +485,24 @@ app.post('/api/gallery/:id/cover', (req, res) => {
     });
 });
 
+app.delete('/api/gallery/:id/cover', (req, res) => {
+    const galleryId = req.params.id;
+    const sessionToken = req.headers['x-session-token'];
+    
+    const gallery = dbGet('SELECT admin_id, cover_photo FROM galleries WHERE id = ?', [galleryId]);
+    
+    if (!gallery) {
+        return res.status(404).json({ error: 'Галерея не знайдена' });
+    }
+    
+    if (sessionToken !== gallery.admin_id) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    dbRun('UPDATE galleries SET cover_photo = NULL WHERE id = ?', [galleryId]);
+    res.json({ success: true });
+});
+
 // Delete photo (admin only)
 app.delete('/api/gallery/:id/photos/:photoId', (req, res) => {
     const { id: galleryId, photoId } = req.params;

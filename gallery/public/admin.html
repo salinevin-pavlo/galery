@@ -706,6 +706,10 @@
             border-color: rgba(255,255,255,0.3);
         }
         
+        .cover-upload-area.has-cover .cover-remove {
+            display: flex !important;
+        }
+        
         .cover-upload-area .cover-icon {
             font-size: 2rem;
             margin-bottom: 8px;
@@ -738,6 +742,28 @@
             cursor: pointer;
         }
         
+        .cover-upload-area .cover-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(220, 50, 50, 0.9);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+        
+        .cover-upload-area .cover-remove:hover {
+            background: rgba(255, 50, 50, 1);
+        }
+
         .cover-upload-area input[type="file"] {
             position: absolute;
             top: 0;
@@ -1006,6 +1032,7 @@
                 <span class="cover-icon">🏞️</span>
                 <span class="cover-text">Натисни щоб вибрати фото</span>
                 <input type="file" id="coverInput" accept="image/*" onchange="handleCoverUpload(this.files)">
+                <span class="cover-remove" id="coverRemoveBtn" onclick="event.stopPropagation(); removeCoverPhoto();" style="display:none;">✕</span>
             </div>
             
             <div class="design-section">
@@ -1406,6 +1433,7 @@
                     coverZone.classList.add('has-cover');
                     coverZone.querySelector('.cover-icon').style.display = 'none';
                     coverZone.querySelector('.cover-text').style.display = 'none';
+                    document.getElementById('coverRemoveBtn').style.display = 'flex';
                 }
                 
                 // Load design settings
@@ -1528,13 +1556,43 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
                 
-                document.getElementById('coverPreview').style.backgroundImage = `url(${data.cover_photo})`;
-                document.getElementById('coverPreview').classList.add('has-image');
-                document.getElementById('coverPreview').innerHTML = '';
+                document.getElementById('coverUploadZone').style.backgroundImage = `url(${data.cover_photo})`;
+                document.getElementById('coverUploadZone').classList.add('has-cover');
+                document.getElementById('coverUploadZone').querySelector('.cover-icon').style.display = 'none';
+                document.getElementById('coverUploadZone').querySelector('.cover-text').style.display = 'none';
+                document.getElementById('coverRemoveBtn').style.display = 'flex';
                 currentGallery.cover_photo = data.cover_photo;
                 showToast('Обкладинка завантажена!');
             } catch (err) {
                 showToast('Помилка завантаження', 'error');
+            }
+        }
+        
+        async function removeCoverPhoto() {
+            if (!currentGallery || !currentGallery.id) return;
+            
+            try {
+                const res = await fetch(`${API}/api/gallery/${currentGallery.id}/cover`, {
+                    method: 'DELETE',
+                    headers: { 
+                        'x-session-token': currentAdmin.id,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ delete: true })
+                });
+                
+                if (!res.ok) throw new Error('Failed to delete');
+                
+                const coverZone = document.getElementById('coverUploadZone');
+                coverZone.style.backgroundImage = '';
+                coverZone.classList.remove('has-cover');
+                coverZone.querySelector('.cover-icon').style.display = '';
+                coverZone.querySelector('.cover-text').style.display = '';
+                document.getElementById('coverRemoveBtn').style.display = 'none';
+                currentGallery.cover_photo = null;
+                showToast('Обкладинку видалено');
+            } catch (err) {
+                showToast('Помилка видалення', 'error');
             }
         }
         
